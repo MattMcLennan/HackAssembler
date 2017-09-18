@@ -1,0 +1,10 @@
+/Users/matthewmclennan/Code/HackAssembler/bin/Debug/netcoreapp2.0/HackAssembler.deps.json
+/Users/matthewmclennan/Code/HackAssembler/bin/Debug/netcoreapp2.0/HackAssembler.runtimeconfig.json
+/Users/matthewmclennan/Code/HackAssembler/bin/Debug/netcoreapp2.0/HackAssembler.runtimeconfig.dev.json
+/Users/matthewmclennan/Code/HackAssembler/bin/Debug/netcoreapp2.0/HackAssembler.dll
+/Users/matthewmclennan/Code/HackAssembler/bin/Debug/netcoreapp2.0/HackAssembler.pdb
+/Users/matthewmclennan/Code/HackAssembler/obj/Debug/netcoreapp2.0/HackAssembler.csproj.CoreCompileInputs.cache
+/Users/matthewmclennan/Code/HackAssembler/obj/Debug/netcoreapp2.0/HackAssembler.AssemblyInfoInputs.cache
+/Users/matthewmclennan/Code/HackAssembler/obj/Debug/netcoreapp2.0/HackAssembler.AssemblyInfo.cs
+/Users/matthewmclennan/Code/HackAssembler/obj/Debug/netcoreapp2.0/HackAssembler.dll
+/Users/matthewmclennan/Code/HackAssembler/obj/Debug/netcoreapp2.0/HackAssembler.pdb
