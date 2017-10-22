@@ -13,9 +13,9 @@ namespace HackAssembler
     }
 
     enum CommandType {
-        Dest,
-        Comp,
-        Jump
+        A,
+        C,
+        L
     }
 
     class Parser
@@ -31,10 +31,22 @@ namespace HackAssembler
                     continue;
                 }
 
-                result.Add(line);
+                result.Add(ParseCommentOut(line).Trim());
             }
 
             return result;
+        }
+
+        private static string ParseCommentOut(string line)
+        {
+            int commentLocation = line.IndexOf("//");
+
+            if (commentLocation > 0)
+            {
+                return line.Substring(0, commentLocation);
+            }
+
+            return line;
         }
 
         private static bool IsEmptyLine(string line)
@@ -47,14 +59,19 @@ namespace HackAssembler
             return line.StartsWith("//");
         }
 
-        private static bool HasMoreCommands(string line)
+        private static bool HasMoreCommands(string line, int currentPosition)
         {
-            throw new NotImplementedException();
+            return currentPosition < line.Length;
         }
 
-        private static CommandType CommandType(string command)
+        private static CommandType CommandTypeIs(string command)
         {
-            throw new NotImplementedException();
+            if (command.StartsWith("@"))
+            {
+                return CommandType.A;
+            }
+
+            return CommandType.C;
         }
 
         private static string Symbol(string symbol)
@@ -62,21 +79,81 @@ namespace HackAssembler
             throw new NotImplementedException();
         }
 
-        private static void GetDestCmd(string command)
+        private static string GetDestCmd(string command)
         {
-            throw new NotImplementedException();
-        }
+            int end = command.IndexOf("=");
 
-        private static void GetCompCmd(string command)
-        {
-            throw new NotImplementedException();
-        }
+            if (end > 0)
+            {
+                return command.Substring(0, end);
+            }
 
-        private static void GetJumpCmd(string command)
+            return string.Empty;
+       }
+
+        private static string GetCompCmd(string command)
         {
-            throw new NotImplementedException();
+            int start = command.IndexOf("=") + 1;
+            int end = command.IndexOf(";");
+
+            if (start > 1)
+            {
+                if (end > 0)
+                {
+                    return command.Substring(start, end);
+                }
+
+                return command.Substring(start);
+            } 
+            
+            return string.Empty;
+       }
+
+        private static string GetJumpCmd(string command)
+        {
+            int start = command.IndexOf(";") + 1;
+
+            if (start > 1)
+            {
+                return command.Substring(start);
+            }
+
+            return string.Empty;
         }
      }
+
+
+    class Code
+    {
+        public static long ConvertDestCmd()
+        {
+            return new NotImplementedException();
+        }
+
+        public static long ConvertCompCmd()
+        {
+            return new NotImplementedException();
+        } 
+
+        public static long ConvertJumpCmd()
+        {
+            return new NotImplementedException();
+        }
+
+        public static List<long> ConvertInstructionsToBinary(List<string> instructions)
+        {
+            var result = new List<long>();
+
+            foreach (var item in instructions)
+            {
+
+            }
+
+
+            return result;
+        }
+    }
+
 
     class SymbolTable
     {
@@ -125,7 +202,7 @@ namespace HackAssembler
                 return (int)ExitCode.InvalidFilename;
             }
 
-            Parser.ParseFile(inputFile);
+            var instructions = Parser.ParseFile(inputFile);
 
             return (int)ExitCode.Success;
         }
