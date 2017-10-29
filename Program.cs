@@ -12,7 +12,8 @@ namespace HackAssembler
         UnknownError = 10
     }
 
-    enum CommandType {
+    enum CommandType
+    {
         A,
         C,
         L
@@ -79,7 +80,7 @@ namespace HackAssembler
             throw new NotImplementedException();
         }
 
-        private static string GetDestCmd(string command)
+        public static string GetDestCmd(string command)
         {
             int end = command.IndexOf("=");
 
@@ -89,9 +90,9 @@ namespace HackAssembler
             }
 
             return string.Empty;
-       }
+        }
 
-        private static string GetCompCmd(string command)
+        public static string GetCompCmd(string command)
         {
             int start = command.IndexOf("=") + 1;
             int end = command.IndexOf(";");
@@ -104,12 +105,12 @@ namespace HackAssembler
                 }
 
                 return command.Substring(start);
-            } 
-            
-            return string.Empty;
-       }
+            }
 
-        private static string GetJumpCmd(string command)
+            return string.Empty;
+        }
+
+        public static string GetJumpCmd(string command)
         {
             int start = command.IndexOf(";") + 1;
 
@@ -120,23 +121,142 @@ namespace HackAssembler
 
             return string.Empty;
         }
-     }
+    }
 
     class Code
     {
-        public static long ConvertDestCmd(string cmd)
+        private static long ConvertDestCmd(string cmd)
         {
-            return new NotImplementedException();
+            var destCmd = Parser.GetDestCmd(cmd);
+
+            long value;
+            if (!DestCmdMapping.TryGetValue(destCmd, out value))
+            {
+                throw new Exception("Key not found in dest cmd mapping dictionary");
+            }
+
+            return value;
         }
 
-        public static long ConvertCompCmd(string cmd)
-        {
-            return new NotImplementedException();
-        } 
+        private static Dictionary<string, long> _destCmdMapping;
 
-        public static long ConvertJumpCmd(string cmd)
+        private static Dictionary<string, long> DestCmdMapping
         {
-            return new NotImplementedException();
+            get
+            {
+                if (_destCmdMapping == null)
+                {
+                    _destCmdMapping = new Dictionary<string, long>
+                    {
+                        { "", 0 }
+                        , { "M", 0x0001 }
+                        , { "D", 0x0002 }
+                        , { "MD", 0x0003 }
+                        , { "A", 0x0004 }
+                        , { "AM", 0x0005 }
+                        , { "AD", 0x0006 }
+                        , { "AMD", 0x0007 }
+                    };
+                }
+
+                return _destCmdMapping;
+            }
+        }
+
+        private static Dictionary<string, long> _jumpCmdMapping;
+
+        private static Dictionary<string, long> JumpCmdMapping
+        {
+            get
+            {
+                if (_jumpCmdMapping == null)
+                {
+                    _jumpCmdMapping = new Dictionary<string, long>
+                    {
+                        { "", 0 }
+                        , { "JGT", 0x0001 }
+                        , { "JEQ", 0x0002 }
+                        , { "JGE", 0x0003 }
+                        , { "JLT", 0x0004 }
+                        , { "JNE", 0x0005 }
+                        , { "JLE", 0x0006 }
+                        , { "JMP", 0x0007 }
+                    };
+                }
+
+                return _jumpCmdMapping;
+            }
+        }
+
+        private static Dictionary<string, long> _compCmdMapping;
+
+        private static Dictionary<string, long> CompCmdMapping
+        {
+            get
+            {
+                if (_compCmdMapping == null)
+                {
+                    _compCmdMapping = new Dictionary<string, long>
+                    {
+                        { "0", 0 }
+                        , { "1", 0x0001 }
+                        , { "-1", 0x0002 }
+                        , { "D", 0x0003 }
+                        , { "A", 0x0004 }
+                        , { "M", 0x0005 }
+                        , { "!D", 0x0006 }
+                        , { "!A", 0x0007 }
+                        , { "!M", 0 }
+                        , { "-D", 0x0001 }
+                        , { "-A", 0x0002 }
+                        , { "-M", 0x0003 }
+                        , { "D+1", 0x0004 }
+                        , { "A+1", 0x0005 }
+                        , { "M+1", 0x0006 }
+                        , { "D-1", 0x0007 }
+                        , { "A-1", 0 }
+                        , { "M-1", 0x0001 }
+                        , { "D+A", 0x0002 }
+                        , { "D+M", 0x0003 }
+                        , { "D-A", 0x0004 }
+                        , { "D-M", 0x0005 }
+                        , { "A-D", 0x0006 }
+                        , { "M-D", 0x0007 }
+                        , { "D&A", 0 }
+                        , { "D&M", 0x0001 }
+                        , { "D|A", 0x0002 }
+                        , { "D|M", 0x0003 }
+                    };
+                }
+
+                return _compCmdMapping;
+            }
+        }
+
+        private static long ConvertCompCmd(string cmd)
+        {
+            var compCmd = Parser.GetCompCmd(cmd);
+
+            long value;
+            if (!CompCmdMapping.TryGetValue(compCmd, out value))
+            {
+                throw new Exception("Key not found in jump cmd mapping dictionary");
+            }
+
+            return value;
+        }
+
+        private static long ConvertJumpCmd(string cmd)
+        {
+            var jumpCmd = Parser.GetJumpCmd(cmd);
+
+            long value;
+            if (!JumpCmdMapping.TryGetValue(jumpCmd, out value))
+            {
+                throw new Exception("Key not found in jump cmd mapping dictionary");
+            }
+
+            return value;
         }
 
         private static byte[] ConvertToBinary(Int16 value)
@@ -144,7 +264,7 @@ namespace HackAssembler
             var result = new byte[2];
 
             result[0] = (byte)value;
-            result[1] = (byte)(value>>8);
+            result[1] = (byte)(value >> 8);
 
             return result;
         }
@@ -159,21 +279,21 @@ namespace HackAssembler
                 switch (cmd)
                 {
                     case CommandType.A:
-                    {
-                        result.Add(ConvertACmd(item));
-                        break;
-                    }
-                    
+                        {
+                            result.Add(ConvertACmd(item));
+                            break;
+                        }
+
                     case CommandType.L:
-                    {
-                        result.Add(ConvertLCmd(item));
-                        break;
-                    }
+                        {
+                            result.Add(ConvertLCmd(item));
+                            break;
+                        }
 
                     default:
-                    {
-                        throw new Exception("Command Type not found/not yet implemented");
-                    }
+                        {
+                            throw new Exception("Command Type not found/not yet implemented");
+                        }
                 }
 
             }
