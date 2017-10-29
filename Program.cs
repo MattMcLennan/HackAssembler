@@ -64,7 +64,7 @@ namespace HackAssembler
             return currentPosition < line.Length;
         }
 
-        private static CommandType CommandTypeIs(string command)
+        public static CommandType CommandTypeIs(string command)
         {
             if (command.StartsWith("@"))
             {
@@ -122,22 +122,31 @@ namespace HackAssembler
         }
      }
 
-
     class Code
     {
-        public static long ConvertDestCmd()
+        public static long ConvertDestCmd(string cmd)
         {
             return new NotImplementedException();
         }
 
-        public static long ConvertCompCmd()
+        public static long ConvertCompCmd(string cmd)
         {
             return new NotImplementedException();
         } 
 
-        public static long ConvertJumpCmd()
+        public static long ConvertJumpCmd(string cmd)
         {
             return new NotImplementedException();
+        }
+
+        private static byte[] ConvertToBinary(Int16 value)
+        {
+            var result = new byte[2];
+
+            result[0] = (byte)value;
+            result[1] = (byte)(value>>8);
+
+            return result;
         }
 
         public static List<long> ConvertInstructionsToBinary(List<string> instructions)
@@ -146,11 +155,42 @@ namespace HackAssembler
 
             foreach (var item in instructions)
             {
+                CommandType cmd = Parser.CommandTypeIs(item);
+                switch (cmd)
+                {
+                    case CommandType.A:
+                    {
+                        result.Add(ConvertACmd(item));
+                        break;
+                    }
+                    
+                    case CommandType.L:
+                    {
+                        result.Add(ConvertLCmd(item));
+                        break;
+                    }
+
+                    default:
+                    {
+                        throw new Exception("Command Type not found/not yet implemented");
+                    }
+                }
 
             }
 
-
             return result;
+        }
+
+        private static long ConvertLCmd(string item)
+        {
+            var lCmd = ConvertDestCmd(item) + ConvertCompCmd(item) + ConvertJumpCmd(item);
+            return Convert.ToInt16(lCmd);
+        }
+
+        private static long ConvertACmd(string item)
+        {
+            var address = item.Substring(1);
+            return Convert.ToInt16(address);
         }
     }
 
