@@ -126,11 +126,11 @@ namespace HackAssembler
 
     class Code
     {
-        private static long ConvertDestCmd(string cmd)
+        private static BitArray ConvertDestCmd(string cmd)
         {
             var destCmd = Parser.GetDestCmd(cmd);
 
-            long value;
+            BitArray value;
             if (!DestCmdMapping.TryGetValue(destCmd, out value))
             {
                 throw new Exception("Key not found in dest cmd mapping dictionary");
@@ -234,11 +234,11 @@ namespace HackAssembler
             }
         }
 
-        private static long ConvertCompCmd(string cmd)
+        private static BitArray ConvertCompCmd(string cmd)
         {
             var compCmd = Parser.GetCompCmd(cmd);
 
-            long value;
+            BitArray value;
             if (!CompCmdMapping.TryGetValue(compCmd, out value))
             {
                 throw new Exception("Key not found in jump cmd mapping dictionary");
@@ -251,7 +251,7 @@ namespace HackAssembler
         {
             var jumpCmd = Parser.GetJumpCmd(cmd);
 
-            long value;
+            BitArray value;
             if (!JumpCmdMapping.TryGetValue(jumpCmd, out value))
             {
                 throw new Exception("Key not found in jump cmd mapping dictionary");
@@ -304,7 +304,30 @@ namespace HackAssembler
 
         private static long ConvertLCmd(string item)
         {
-            var lCmd = ConvertDestCmd(item) + ConvertCompCmd(item) + ConvertJumpCmd(item);
+            BitArray binaryCompCmd = ConvertCompCmd(item);
+            BitArray binaryDestCmd = ConvertDestCmd(item);
+            BitArray binaryJumpCmd = ConvertJumpCmd(item);
+
+            BitArray lCmd = new BitArray(new int[]
+            {
+                1,
+                1,
+                1,
+                binaryCompCmd[0] ? 1 : 0,
+                binaryCompCmd[1] ? 1 : 0,
+                binaryCompCmd[2] ? 1 : 0,
+                binaryCompCmd[3] ? 1 : 0,
+                binaryCompCmd[4] ? 1 : 0,
+                binaryCompCmd[5] ? 1 : 0,
+                binaryCompCmd[6] ? 1 : 0,
+                binaryDestCmd[0] ? 1 : 0,
+                binaryDestCmd[1] ? 1 : 0,
+                binaryDestCmd[2] ? 1 : 0,
+                binaryJumpCmd[0] ? 1 : 0,
+                binaryJumpCmd[1] ? 1 : 0,
+                binaryJumpCmd[2] ? 1 : 0
+            });
+
             return Convert.ToInt16(lCmd);
         }
 
