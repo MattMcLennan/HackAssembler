@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
@@ -138,24 +139,24 @@ namespace HackAssembler
             return value;
         }
 
-        private static Dictionary<string, long> _destCmdMapping;
+        private static Dictionary<string, BitArray> _destCmdMapping;
 
-        private static Dictionary<string, long> DestCmdMapping
+        private static Dictionary<string, BitArray> DestCmdMapping
         {
             get
             {
                 if (_destCmdMapping == null)
                 {
-                    _destCmdMapping = new Dictionary<string, long>
+                    _destCmdMapping = new Dictionary<string, BitArray>
                     {
-                        { "", 0 }
-                        , { "M", 0x0001 }
-                        , { "D", 0x0002 }
-                        , { "MD", 0x0003 }
-                        , { "A", 0x0004 }
-                        , { "AM", 0x0005 }
-                        , { "AD", 0x0006 }
-                        , { "AMD", 0x0007 }
+                        { "", new BitArray(new int[] { 0, 0, 0})  }
+                        , { "M", new BitArray(new int[] { 0, 0, 1 }) }
+                        , { "D", new BitArray(new int[] { 0, 1, 0 }) }
+                        , { "MD", new BitArray(new int[] { 0, 1, 1 }) }
+                        , { "A", new BitArray(new int[] { 1, 0, 0 }) }
+                        , { "AM", new BitArray(new int[] { 1, 0, 1 }) }
+                        , { "AD", new BitArray(new int[] { 1, 1, 0 }) }
+                        , { "AMD", new BitArray(new int[] { 1, 1, 1 }) }
                     };
                 }
 
@@ -163,24 +164,24 @@ namespace HackAssembler
             }
         }
 
-        private static Dictionary<string, long> _jumpCmdMapping;
+        private static Dictionary<string, BitArray> _jumpCmdMapping;
 
-        private static Dictionary<string, long> JumpCmdMapping
+        private static Dictionary<string, BitArray> JumpCmdMapping
         {
             get
             {
                 if (_jumpCmdMapping == null)
                 {
-                    _jumpCmdMapping = new Dictionary<string, long>
+                    _jumpCmdMapping = new Dictionary<string, BitArray>
                     {
-                        { "", 0 }
-                        , { "JGT", 0x0001 }
-                        , { "JEQ", 0x0002 }
-                        , { "JGE", 0x0003 }
-                        , { "JLT", 0x0004 }
-                        , { "JNE", 0x0005 }
-                        , { "JLE", 0x0006 }
-                        , { "JMP", 0x0007 }
+                        { "", new BitArray(new int[] { 0, 0, 0})  }
+                        , { "JGT", new BitArray(new int[] { 0, 0, 1 }) }
+                        , { "JEQ", new BitArray(new int[] { 0, 1, 0 }) }
+                        , { "JGE", new BitArray(new int[] { 0, 1, 1 }) }
+                        , { "JLT", new BitArray(new int[] { 1, 0, 0 }) }
+                        , { "JNE", new BitArray(new int[] { 1, 0, 1 }) }
+                        , { "JLE", new BitArray(new int[] { 1, 1, 0 }) }
+                        , { "JMP", new BitArray(new int[] { 1, 1, 1 }) }
                     };
                 }
 
@@ -188,44 +189,44 @@ namespace HackAssembler
             }
         }
 
-        private static Dictionary<string, long> _compCmdMapping;
+        private static Dictionary<string, BitArray> _compCmdMapping;
 
-        private static Dictionary<string, long> CompCmdMapping
+        private static Dictionary<string, BitArray> CompCmdMapping
         {
             get
             {
                 if (_compCmdMapping == null)
                 {
-                    _compCmdMapping = new Dictionary<string, long>
+                    _compCmdMapping = new Dictionary<string, BitArray>
                     {
-                        { "0", 0 }
-                        , { "1", 0x0001 }
-                        , { "-1", 0x0002 }
-                        , { "D", 0x0003 }
-                        , { "A", 0x0004 }
-                        , { "M", 0x0005 }
-                        , { "!D", 0x0006 }
-                        , { "!A", 0x0007 }
-                        , { "!M", 0 }
-                        , { "-D", 0x0001 }
-                        , { "-A", 0x0002 }
-                        , { "-M", 0x0003 }
-                        , { "D+1", 0x0004 }
-                        , { "A+1", 0x0005 }
-                        , { "M+1", 0x0006 }
-                        , { "D-1", 0x0007 }
-                        , { "A-1", 0 }
-                        , { "M-1", 0x0001 }
-                        , { "D+A", 0x0002 }
-                        , { "D+M", 0x0003 }
-                        , { "D-A", 0x0004 }
-                        , { "D-M", 0x0005 }
-                        , { "A-D", 0x0006 }
-                        , { "M-D", 0x0007 }
-                        , { "D&A", 0 }
-                        , { "D&M", 0x0001 }
-                        , { "D|A", 0x0002 }
-                        , { "D|M", 0x0003 }
+                        { "0", new BitArray(new int[] { 0, 1, 0, 1, 0, 1, 0 }) }
+                        , { "1", new BitArray(new int[] { 0, 1, 1, 1, 1, 1, 1 }) }
+                        , { "-1", new BitArray(new int[] { 0, 1, 1, 1, 0, 1, 0 }) }
+                        , { "D", new BitArray(new int[] { 0, 0, 0, 1, 1, 0, 0 }) }
+                        , { "A", new BitArray(new int[] { 0, 1, 1, 0, 0, 0, 0 }) }
+                        , { "M", new BitArray(new int[] { 1, 1, 1, 0, 0, 0, 0 }) }
+                        , { "!D", new BitArray(new int[] { 0, 0, 0, 1, 1, 0, 1 }) }
+                        , { "!A", new BitArray(new int[] { 0, 1, 1, 0, 0, 0, 1 }) }
+                        , { "!M", new BitArray(new int[] { 1, 1, 1, 0, 0, 0, 1 }) }
+                        , { "-D", new BitArray(new int[] { 0, 0, 0, 1, 1, 1, 1 }) }
+                        , { "-A", new BitArray(new int[] { 0, 1, 1, 0, 0, 1, 1 }) }
+                        , { "-M", new BitArray(new int[] { 1, 1, 1, 0, 0, 1, 1 }) }
+                        , { "D+1", new BitArray(new int[] { 0, 0, 1, 1, 1, 1, 1 }) }
+                        , { "A+1", new BitArray(new int[] { 0, 1, 1, 0, 1, 1, 1 }) }
+                        , { "M+1", new BitArray(new int[] { 1, 1, 1, 0, 1, 1, 1 }) }
+                        , { "D-1", new BitArray(new int[] { 0, 0, 0, 1, 1, 1, 0 }) }
+                        , { "A-1", new BitArray(new int[] { 0, 1, 1, 0, 0, 1, 0 }) }
+                        , { "M-1", new BitArray(new int[] { 1, 1, 1, 0, 0, 1, 0 }) }
+                        , { "D+A", new BitArray(new int[] { 0, 0, 0, 0, 0, 1, 0 }) }
+                        , { "D+M", new BitArray(new int[] { 1, 0, 0, 0, 0, 1, 0 }) }
+                        , { "D-A", new BitArray(new int[] { 0, 0, 1, 0, 0, 1, 1 }) }
+                        , { "D-M", new BitArray(new int[] { 1, 0, 1, 0, 0, 1, 1 }) }
+                        , { "A-D", new BitArray(new int[] { 0, 0, 0, 0, 1, 1, 1 }) }
+                        , { "M-D", new BitArray(new int[] { 1, 0, 0, 0, 1, 1, 1 }) }
+                        , { "D&A", new BitArray(new int[] { 0, 0, 0, 0, 0, 0, 0 }) }
+                        , { "D&M", new BitArray(new int[] { 1, 0, 0, 0, 0, 0, 0 }) }
+                        , { "D|A", new BitArray(new int[] { 0, 0, 1, 0, 1, 0, 1 }) }
+                        , { "D|M", new BitArray(new int[] { 1, 0, 1, 0, 1, 0, 1 }) }
                     };
                 }
 
@@ -246,7 +247,7 @@ namespace HackAssembler
             return value;
         }
 
-        private static long ConvertJumpCmd(string cmd)
+        private static BitArray ConvertJumpCmd(string cmd)
         {
             var jumpCmd = Parser.GetJumpCmd(cmd);
 
