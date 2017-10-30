@@ -6,21 +6,21 @@ using System.IO;
 namespace HackAssembler
 {
 
-    enum ExitCode : int
+    internal enum ExitCode : int
     {
         Success = 0,
         InvalidFilename = 1,
         UnknownError = 10
     }
 
-    enum CommandType
+    internal enum CommandType
     {
         A,
         C,
         L
     }
 
-    class Parser
+    internal class Parser
     {
         public static List<string> ParseFile(string inputFile)
         {
@@ -124,11 +124,11 @@ namespace HackAssembler
         }
     }
 
-    class Code
+    internal class Code
     {
         private static BitArray ConvertDestCmd(string cmd)
         {
-            var destCmd = Parser.GetDestCmd(cmd);
+            string destCmd = Parser.GetDestCmd(cmd);
 
             BitArray value;
             if (!DestCmdMapping.TryGetValue(destCmd, out value))
@@ -236,7 +236,7 @@ namespace HackAssembler
 
         private static BitArray ConvertCompCmd(string cmd)
         {
-            var compCmd = Parser.GetCompCmd(cmd);
+            string compCmd = Parser.GetCompCmd(cmd);
 
             BitArray value;
             if (!CompCmdMapping.TryGetValue(compCmd, out value))
@@ -249,7 +249,7 @@ namespace HackAssembler
 
         private static BitArray ConvertJumpCmd(string cmd)
         {
-            var jumpCmd = Parser.GetJumpCmd(cmd);
+            string jumpCmd = Parser.GetJumpCmd(cmd);
 
             BitArray value;
             if (!JumpCmdMapping.TryGetValue(jumpCmd, out value))
@@ -260,7 +260,7 @@ namespace HackAssembler
             return value;
         }
 
-        private static byte[] ConvertToBinary(Int16 value)
+        private static byte[] ConvertToBytes(Int16 value)
         {
             var result = new byte[2];
 
@@ -270,9 +270,9 @@ namespace HackAssembler
             return result;
         }
 
-        public static List<long> ConvertInstructionsToBinary(List<string> instructions)
+        public static List<byte[]> ConvertInstructionsToBinary(List<string> instructions)
         {
-            var result = new List<long>();
+            var result = new List<byte[]>();
 
             foreach (var item in instructions)
             {
@@ -281,13 +281,15 @@ namespace HackAssembler
                 {
                     case CommandType.A:
                         {
-                            result.Add(ConvertACmd(item));
+                            Int16 aCmd = ConvertACmd(item);
+                            result.Add(ConvertToBytes(aCmd));
                             break;
                         }
 
                     case CommandType.L:
                         {
-                            result.Add(ConvertLCmd(item));
+                            Int16 lCmd = ConvertLCmd(item);
+                            result.Add(ConvertToBytes(lCmd));
                             break;
                         }
 
@@ -302,7 +304,7 @@ namespace HackAssembler
             return result;
         }
 
-        private static long ConvertLCmd(string item)
+        private static Int16 ConvertLCmd(string item)
         {
             BitArray binaryCompCmd = ConvertCompCmd(item);
             BitArray binaryDestCmd = ConvertDestCmd(item);
@@ -331,7 +333,7 @@ namespace HackAssembler
             return Convert.ToInt16(lCmd);
         }
 
-        private static long ConvertACmd(string item)
+        private static Int16 ConvertACmd(string item)
         {
             var address = item.Substring(1);
             return Convert.ToInt16(address);
@@ -339,7 +341,7 @@ namespace HackAssembler
     }
 
 
-    class SymbolTable
+    internal class SymbolTable
     {
         public SymbolTable()
         {
@@ -386,7 +388,20 @@ namespace HackAssembler
                 return (int)ExitCode.InvalidFilename;
             }
 
-            var instructions = Parser.ParseFile(inputFile);
+            List<string> instructions = Parser.ParseFile(inputFile);
+            List<byte[]> byteInstructions = Code.ConvertInstructionsToBinary(instructions);
+
+            const string fileName = "Test.txt";
+            byte[] newLine = System.Text.ASCIIEncoding.ASCII.GetBytes(Environment.NewLine);
+            using (FileStream fileStream = new FileStream(fileName, FileMode.Create))
+            {
+                foreach (var bytes in byteInstructions)
+                {
+                    fileStream.WriteByte(bytes[0]);
+                    fileStream.WriteByte(bytes[1]);
+                    fileStream.Write(newLine, 0, newLine.Length);
+                }
+            }
 
             return (int)ExitCode.Success;
         }
