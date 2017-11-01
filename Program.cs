@@ -126,11 +126,11 @@ namespace HackAssembler
 
     internal class Code
     {
-        private static BitArray ConvertDestCmd(string cmd)
+        private static bool[] ConvertDestCmd(string cmd)
         {
             string destCmd = Parser.GetDestCmd(cmd);
 
-            BitArray value;
+            bool[] value;
             if (!DestCmdMapping.TryGetValue(destCmd, out value))
             {
                 throw new Exception("Key not found in dest cmd mapping dictionary");
@@ -139,24 +139,24 @@ namespace HackAssembler
             return value;
         }
 
-        private static Dictionary<string, BitArray> _destCmdMapping;
+        private static Dictionary<string, bool[]> _destCmdMapping;
 
-        private static Dictionary<string, BitArray> DestCmdMapping
+        private static Dictionary<string, bool[]> DestCmdMapping
         {
             get
             {
                 if (_destCmdMapping == null)
                 {
-                    _destCmdMapping = new Dictionary<string, BitArray>
+                    _destCmdMapping = new Dictionary<string, bool[]>
                     {
-                        { "", new BitArray(new int[] { 0, 0, 0})  }
-                        , { "M", new BitArray(new int[] { 0, 0, 1 }) }
-                        , { "D", new BitArray(new int[] { 0, 1, 0 }) }
-                        , { "MD", new BitArray(new int[] { 0, 1, 1 }) }
-                        , { "A", new BitArray(new int[] { 1, 0, 0 }) }
-                        , { "AM", new BitArray(new int[] { 1, 0, 1 }) }
-                        , { "AD", new BitArray(new int[] { 1, 1, 0 }) }
-                        , { "AMD", new BitArray(new int[] { 1, 1, 1 }) }
+                        { "", new bool[] { false, false, false}  }
+                        , { "M", new bool[] { false, false, true } }
+                        , { "D", new bool[] { false, true, false } }
+                        , { "MD", new bool[] { false, true, true } }
+                        , { "A", new bool[] { true, false, false } }
+                        , { "AM", new bool[] { true, false, true } }
+                        , { "AD", new bool[] { true, true, false } }
+                        , { "AMD", new bool[] { true, true, true } }
                     };
                 }
 
@@ -164,24 +164,24 @@ namespace HackAssembler
             }
         }
 
-        private static Dictionary<string, BitArray> _jumpCmdMapping;
+        private static Dictionary<string, bool[]> _jumpCmdMapping;
 
-        private static Dictionary<string, BitArray> JumpCmdMapping
+        private static Dictionary<string, bool[]> JumpCmdMapping
         {
             get
             {
                 if (_jumpCmdMapping == null)
                 {
-                    _jumpCmdMapping = new Dictionary<string, BitArray>
+                    _jumpCmdMapping = new Dictionary<string, bool[]>
                     {
-                        { "", new BitArray(new int[] { 0, 0, 0})  }
-                        , { "JGT", new BitArray(new int[] { 0, 0, 1 }) }
-                        , { "JEQ", new BitArray(new int[] { 0, 1, 0 }) }
-                        , { "JGE", new BitArray(new int[] { 0, 1, 1 }) }
-                        , { "JLT", new BitArray(new int[] { 1, 0, 0 }) }
-                        , { "JNE", new BitArray(new int[] { 1, 0, 1 }) }
-                        , { "JLE", new BitArray(new int[] { 1, 1, 0 }) }
-                        , { "JMP", new BitArray(new int[] { 1, 1, 1 }) }
+                        { "", new bool[] { false, false, false}  }
+                        , { "JGT", new bool[] { false, false, true } }
+                        , { "JEQ", new bool[] { false, true, false } }
+                        , { "JGE", new bool[] { false, true, true } }
+                        , { "JLT", new bool[] { true, false, false } }
+                        , { "JNE", new bool[] { true, false, true } }
+                        , { "JLE", new bool[] { true, true, false } }
+                        , { "JMP", new bool[] { true, true, true } }
                     };
                 }
 
@@ -189,44 +189,44 @@ namespace HackAssembler
             }
         }
 
-        private static Dictionary<string, BitArray> _compCmdMapping;
+        private static Dictionary<string, bool[]> _compCmdMapping;
 
-        private static Dictionary<string, BitArray> CompCmdMapping
+        private static Dictionary<string, bool[]> CompCmdMapping
         {
             get
             {
                 if (_compCmdMapping == null)
                 {
-                    _compCmdMapping = new Dictionary<string, BitArray>
+                    _compCmdMapping = new Dictionary<string, bool[]>
                     {
-                        { "0", new BitArray(new int[] { 0, 1, 0, 1, 0, 1, 0 }) }
-                        , { "1", new BitArray(new int[] { 0, 1, 1, 1, 1, 1, 1 }) }
-                        , { "-1", new BitArray(new int[] { 0, 1, 1, 1, 0, 1, 0 }) }
-                        , { "D", new BitArray(new int[] { 0, 0, 0, 1, 1, 0, 0 }) }
-                        , { "A", new BitArray(new int[] { 0, 1, 1, 0, 0, 0, 0 }) }
-                        , { "M", new BitArray(new int[] { 1, 1, 1, 0, 0, 0, 0 }) }
-                        , { "!D", new BitArray(new int[] { 0, 0, 0, 1, 1, 0, 1 }) }
-                        , { "!A", new BitArray(new int[] { 0, 1, 1, 0, 0, 0, 1 }) }
-                        , { "!M", new BitArray(new int[] { 1, 1, 1, 0, 0, 0, 1 }) }
-                        , { "-D", new BitArray(new int[] { 0, 0, 0, 1, 1, 1, 1 }) }
-                        , { "-A", new BitArray(new int[] { 0, 1, 1, 0, 0, 1, 1 }) }
-                        , { "-M", new BitArray(new int[] { 1, 1, 1, 0, 0, 1, 1 }) }
-                        , { "D+1", new BitArray(new int[] { 0, 0, 1, 1, 1, 1, 1 }) }
-                        , { "A+1", new BitArray(new int[] { 0, 1, 1, 0, 1, 1, 1 }) }
-                        , { "M+1", new BitArray(new int[] { 1, 1, 1, 0, 1, 1, 1 }) }
-                        , { "D-1", new BitArray(new int[] { 0, 0, 0, 1, 1, 1, 0 }) }
-                        , { "A-1", new BitArray(new int[] { 0, 1, 1, 0, 0, 1, 0 }) }
-                        , { "M-1", new BitArray(new int[] { 1, 1, 1, 0, 0, 1, 0 }) }
-                        , { "D+A", new BitArray(new int[] { 0, 0, 0, 0, 0, 1, 0 }) }
-                        , { "D+M", new BitArray(new int[] { 1, 0, 0, 0, 0, 1, 0 }) }
-                        , { "D-A", new BitArray(new int[] { 0, 0, 1, 0, 0, 1, 1 }) }
-                        , { "D-M", new BitArray(new int[] { 1, 0, 1, 0, 0, 1, 1 }) }
-                        , { "A-D", new BitArray(new int[] { 0, 0, 0, 0, 1, 1, 1 }) }
-                        , { "M-D", new BitArray(new int[] { 1, 0, 0, 0, 1, 1, 1 }) }
-                        , { "D&A", new BitArray(new int[] { 0, 0, 0, 0, 0, 0, 0 }) }
-                        , { "D&M", new BitArray(new int[] { 1, 0, 0, 0, 0, 0, 0 }) }
-                        , { "D|A", new BitArray(new int[] { 0, 0, 1, 0, 1, 0, 1 }) }
-                        , { "D|M", new BitArray(new int[] { 1, 0, 1, 0, 1, 0, 1 }) }
+                        { "0", new bool[]{ false, true, false, true, false, true, false } }
+                        , { "1", new bool[] { false, true, true, true, true, true, true } }
+                        , { "-1", new bool[] { false, true, true, true, false, true, false } }
+                        , { "D", new bool[] { false, false, false, true, true, false, false } }
+                        , { "A", new bool[] { false, true, true, false, false, false, false }}
+                        , { "M", new bool[] { true, true, true, false, false, false, false }}
+                        , { "!D", new bool[] { false, false, false, true, true, false, true }}
+                        , { "!A", new bool[] { false, true, true, false, false, false, true }}
+                        , { "!M", new bool[] { true, true, true, false, false, false, true }}
+                        , { "-D", new bool[] { false, false, false, true, true, true, true }}
+                        , { "-A", new bool[] { false, true, true, false, false, true, true }}
+                        , { "-M", new bool[] { true, true, true, false, false, true, true }}
+                        , { "D+1", new bool[] { false, false, true, true, true, true, true }}
+                        , { "A+1", new bool[] { false, true, true, false, true, true, true }}
+                        , { "M+1", new bool[] { true, true, true, false, true, true, true }}
+                        , { "D-1", new bool[] { false, false, false, true, true, true, false }}
+                        , { "A-1", new bool[] { false, true, true, false, false, true, false }}
+                        , { "M-1", new bool[] { true, true, true, false, false, true, false }}
+                        , { "D+A", new bool[] { false, false, false, false, false, true, false }}
+                        , { "D+M", new bool[] { true, false, false, false, false, true, false }}
+                        , { "D-A", new bool[] { false, false, true, false, false, true, true }}
+                        , { "D-M", new bool[] { true, false, true, false, false, true, true }}
+                        , { "A-D", new bool[] { false, false, false, false, true, true, true }}
+                        , { "M-D", new bool[] { true, false, false, false, true, true, true }}
+                        , { "D&A", new bool[] { false, false, false, false, false, false, false }}
+                        , { "D&M", new bool[] { true, false, false, false, false, false, false }}
+                        , { "D|A", new bool[] { false, false, true, false, true, false, true }}
+                        , { "D|M", new bool[] { true, false, true, false, true, false, true }}
                     };
                 }
 
@@ -234,11 +234,11 @@ namespace HackAssembler
             }
         }
 
-        private static BitArray ConvertCompCmd(string cmd)
+        private static bool[] ConvertCompCmd(string cmd)
         {
             string compCmd = Parser.GetCompCmd(cmd);
 
-            BitArray value;
+            bool[] value;
             if (!CompCmdMapping.TryGetValue(compCmd, out value))
             {
                 throw new Exception("Key not found in jump cmd mapping dictionary");
@@ -247,11 +247,11 @@ namespace HackAssembler
             return value;
         }
 
-        private static BitArray ConvertJumpCmd(string cmd)
+        private static bool[] ConvertJumpCmd(string cmd)
         {
             string jumpCmd = Parser.GetJumpCmd(cmd);
 
-            BitArray value;
+            bool[] value;
             if (!JumpCmdMapping.TryGetValue(jumpCmd, out value))
             {
                 throw new Exception("Key not found in jump cmd mapping dictionary");
@@ -286,10 +286,10 @@ namespace HackAssembler
                             break;
                         }
 
-                    case CommandType.L:
+                    case CommandType.C:
                         {
-                            Int16 lCmd = ConvertLCmd(item);
-                            result.Add(ConvertToBytes(lCmd));
+                            Int16 cCmd = ConvertCCmd(item);
+                            result.Add(ConvertToBytes(cCmd));
                             break;
                         }
 
@@ -304,33 +304,33 @@ namespace HackAssembler
             return result;
         }
 
-        private static Int16 ConvertLCmd(string item)
+        private static Int16 ConvertCCmd(string item)
         {
-            BitArray binaryCompCmd = ConvertCompCmd(item);
-            BitArray binaryDestCmd = ConvertDestCmd(item);
-            BitArray binaryJumpCmd = ConvertJumpCmd(item);
+            bool[] binaryCompCmd = ConvertCompCmd(item);
+            bool[] binaryDestCmd = ConvertDestCmd(item);
+            bool[] binaryJumpCmd = ConvertJumpCmd(item);
 
-            BitArray lCmd = new BitArray(new int[]
+            bool[] cCmd = new bool[]
             {
-                1,
-                1,
-                1,
-                binaryCompCmd[0] ? 1 : 0,
-                binaryCompCmd[1] ? 1 : 0,
-                binaryCompCmd[2] ? 1 : 0,
-                binaryCompCmd[3] ? 1 : 0,
-                binaryCompCmd[4] ? 1 : 0,
-                binaryCompCmd[5] ? 1 : 0,
-                binaryCompCmd[6] ? 1 : 0,
-                binaryDestCmd[0] ? 1 : 0,
-                binaryDestCmd[1] ? 1 : 0,
-                binaryDestCmd[2] ? 1 : 0,
-                binaryJumpCmd[0] ? 1 : 0,
-                binaryJumpCmd[1] ? 1 : 0,
-                binaryJumpCmd[2] ? 1 : 0
-            });
+                true,
+                true,
+                true,
+                binaryCompCmd[0],
+                binaryCompCmd[1],
+                binaryCompCmd[2],
+                binaryCompCmd[3],
+                binaryCompCmd[4],
+                binaryCompCmd[5],
+                binaryCompCmd[6],
+                binaryDestCmd[0],
+                binaryDestCmd[1],
+                binaryDestCmd[2],
+                binaryJumpCmd[0],
+                binaryJumpCmd[1],
+                binaryJumpCmd[2]
+            };
 
-            return Convert.ToInt16(lCmd);
+            return Convert.ToInt16(cCmd);
         }
 
         private static Int16 ConvertACmd(string item)
@@ -391,7 +391,7 @@ namespace HackAssembler
             List<string> instructions = Parser.ParseFile(inputFile);
             List<byte[]> byteInstructions = Code.ConvertInstructionsToBinary(instructions);
 
-            const string fileName = "Test.txt";
+            const string fileName = "../ComputerArchitecture/nand2tetris/projects/06/add/Add.hack";
             byte[] newLine = System.Text.ASCIIEncoding.ASCII.GetBytes(Environment.NewLine);
             using (FileStream fileStream = new FileStream(fileName, FileMode.Create))
             {
