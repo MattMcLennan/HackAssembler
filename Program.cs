@@ -260,7 +260,7 @@ namespace HackAssembler
             return value;
         }
 
-        private static byte[] ConvertToBytes(Int16 value)
+        private static byte[] ConvertToBytes(Int32 value)
         {
             var result = new byte[2];
 
@@ -281,14 +281,14 @@ namespace HackAssembler
                 {
                     case CommandType.A:
                         {
-                            Int16 aCmd = ConvertACmd(item);
+                            Int32 aCmd = ConvertACmd(item);
                             result.Add(ConvertToBytes(aCmd));
                             break;
                         }
 
                     case CommandType.C:
                         {
-                            Int16 cCmd = ConvertCCmd(item);
+                            Int32 cCmd = ConvertCCmd(item);
                             result.Add(ConvertToBytes(cCmd));
                             break;
                         }
@@ -304,7 +304,7 @@ namespace HackAssembler
             return result;
         }
 
-        private static Int16 ConvertCCmd(string item)
+        private static Int32 ConvertCCmd(string item)
         {
             bool[] binaryCompCmd = ConvertCompCmd(item);
             bool[] binaryDestCmd = ConvertDestCmd(item);
@@ -330,16 +330,26 @@ namespace HackAssembler
                 binaryJumpCmd[2]
             };
 
-            return Convert.ToInt16(cCmd);
+            return GetIntFromBitArray(new BitArray(cCmd));
         }
 
-        private static Int16 ConvertACmd(string item)
+        private static Int32 ConvertACmd(string item)
         {
             var address = item.Substring(1);
             return Convert.ToInt16(address);
         }
-    }
 
+        private static Int32 GetIntFromBitArray(BitArray bitArray)
+        {
+            if (bitArray.Length > 16)
+                throw new ArgumentException("Bit Array is too long");
+
+            Int32[] array = new Int32[1];
+            bitArray.CopyTo(array, 0);
+
+            return array[0];
+        }
+    }
 
     internal class SymbolTable
     {
@@ -391,15 +401,15 @@ namespace HackAssembler
             List<string> instructions = Parser.ParseFile(inputFile);
             List<byte[]> byteInstructions = Code.ConvertInstructionsToBinary(instructions);
 
-            const string fileName = "../ComputerArchitecture/nand2tetris/projects/06/add/Add.hack";
+            const string fileName = "../ComputerArchitecture/nand2tetris/projects/06/add/Add8.hack";
             byte[] newLine = System.Text.ASCIIEncoding.ASCII.GetBytes(Environment.NewLine);
-            using (FileStream fileStream = new FileStream(fileName, FileMode.Create))
+
+            using (StreamWriter sw = new StreamWriter(fileName))
             {
                 foreach (var bytes in byteInstructions)
                 {
-                    fileStream.WriteByte(bytes[0]);
-                    fileStream.WriteByte(bytes[1]);
-                    fileStream.Write(newLine, 0, newLine.Length);
+                    string bitsOutput = Convert.ToString(bytes[0] + bytes[1], 2).PadLeft(16, '0');
+                    sw.WriteLine(bitsOutput);
                 }
             }
 
