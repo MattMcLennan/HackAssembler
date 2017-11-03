@@ -330,6 +330,8 @@ namespace HackAssembler
                 binaryJumpCmd[2]
             };
 
+            Array.Reverse(cCmd);
+
             return GetIntFromBitArray(new BitArray(cCmd));
         }
 
@@ -408,8 +410,9 @@ namespace HackAssembler
             {
                 foreach (var bytes in byteInstructions)
                 {
-                    string bitsOutput = Convert.ToString(bytes[0] + bytes[1], 2).PadLeft(16, '0');
-                    sw.WriteLine(bitsOutput);
+                    string firstByte = Convert.ToString(bytes[0], 2).PadLeft(8, '0');
+                    string secondByte = Convert.ToString(bytes[1], 2).PadLeft(8, '0');
+                    sw.Write(String.Format("{0}{1}{2}", secondByte, firstByte, Environment.NewLine));
                 }
             }
 
