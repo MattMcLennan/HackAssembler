@@ -360,6 +360,8 @@ namespace HackAssembler
             Symbols = new Dictionary<string, int>();
         }
 
+        public static Dictionary<string, int> Symbols { get; set; }
+
         private void InitDefaultSymbols()
         {
             Symbols.Add("SP", 0);
@@ -387,7 +389,21 @@ namespace HackAssembler
             Symbols.Add("KBD", 24576);
         }
 
-        public Dictionary<string, int> Symbols { get; set; }
+        public static void AddEntry(string symbol, int address)
+        {
+            Symbols[symbol] = address;
+        }
+
+        public static int GetAddress(string symbol)
+        {
+            int address;
+            if (!Symbols.TryGetValue(symbol, out address))
+            {
+                throw new Exception("Can't find symbol in symbol dictionary");
+            }
+
+            return address;
+        }
     }
 
     class Program
@@ -410,7 +426,8 @@ namespace HackAssembler
             {
                 foreach (var bytes in byteInstructions)
                 {
-                    string firstByte = Convert.ToString(bytes[0], 2).PadLeft(8, '0');
+                    string firstByte = Convert.ToString(bytes[0], 2).PadLeft(c
+                    8, '0');
                     string secondByte = Convert.ToString(bytes[1], 2).PadLeft(8, '0');
                     sw.Write(String.Format("{0}{1}{2}", secondByte, firstByte, Environment.NewLine));
                 }
