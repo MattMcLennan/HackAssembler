@@ -39,6 +39,27 @@ namespace HackAssembler
             return result;
         }
 
+        public static void FirstPass(string inputFile)
+        {
+            var symbols = new SymbolTable();
+            int address = 0;
+
+            foreach (var line in File.ReadLines(@inputFile))
+            {
+                if (IsEmptyLine(line) || IsCommentLine(line))
+                {
+                    continue;
+                }
+
+                if (IsSymbolDeclaration(line))
+                {
+                    SymbolTable.AddEntry(GetSymbol(line), address + 1);
+                }
+
+                address++;
+            }
+        }
+
         private static string ParseCommentOut(string line)
         {
             int commentLocation = line.IndexOf("//");
@@ -61,6 +82,11 @@ namespace HackAssembler
             return line.StartsWith("//");
         }
 
+        private static bool IsSymbolDeclaration(string line)
+        {
+            return line.StartsWith('(') && line.EndsWith(')');
+        }
+
         private static bool HasMoreCommands(string line, int currentPosition)
         {
             return currentPosition < line.Length;
@@ -76,9 +102,9 @@ namespace HackAssembler
             return CommandType.C;
         }
 
-        private static string Symbol(string symbol)
+        private static string GetSymbol(string symbol)
         {
-            throw new NotImplementedException();
+            return symbol.Split('(', ')')[1];
         }
 
         public static string GetDestCmd(string command)
