@@ -22,13 +22,13 @@ namespace HackAssembler
 
     internal class Parser
     {
-        public static List<string> ParseFile(string inputFile)
+        public static List<string> SecondPass(string inputFile)
         {
             var result = new List<string>();
 
             foreach (var line in File.ReadLines(@inputFile))
             {
-                if (IsEmptyLine(line) || IsCommentLine(line))
+                if (IsEmptyLine(line) || IsCommentLine(line) || IsSymbolDeclaration(line))
                 {
                     continue;
                 }
@@ -92,10 +92,37 @@ namespace HackAssembler
             return currentPosition < line.Length;
         }
 
+        private static bool IsAllUpper(string input)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (!Char.IsUpper(input[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsAllDigits(string input)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (!Char.IsDigit(input[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
         public static CommandType CommandTypeIs(string command)
         {
             if (command.StartsWith("@"))
             {
+                if (IsAllUpper(command.Substring(1)))
+                {
+                    return CommandType.L;
+                }
+
                 return CommandType.A;
             }
 
@@ -148,6 +175,19 @@ namespace HackAssembler
 
             return string.Empty;
         }
+
+        internal static bool IsVariable(string command)
+        {
+            if (command.StartsWith("@"))
+            {
+                if (IsAllUpper(command.Substring(1)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     internal class Code
@@ -164,6 +204,8 @@ namespace HackAssembler
 
             return value;
         }
+
+        private static int varBaseAddress;
 
         private static Dictionary<string, bool[]> _destCmdMapping;
 
@@ -319,6 +361,13 @@ namespace HackAssembler
                             break;
                         }
 
+                    case CommandType.L:
+                        {
+                            Int32 cCmd = ConvertLCmd(item);
+                            result.Add(ConvertToBytes(cCmd));
+                            break;
+                        }
+
                     default:
                         {
                             throw new Exception("Command Type not found/not yet implemented");
@@ -361,10 +410,26 @@ namespace HackAssembler
             return GetIntFromBitArray(new BitArray(cCmd));
         }
 
-        private static Int32 ConvertACmd(string item)
+        private static Int16 ConvertACmd(string item)
         {
-            var address = item.Substring(1);
+            if (Parser.IsVariable(item))
+            {
+                if (!SymbolTable.Contains(item.Substring(1)))
+                {
+                    SymbolTable.AddEntry(item.Substring(1), varBaseAddress);
+                    varBaseAddress++;
+                }
+
+                return Convert.ToInt16(SymbolTable.GetAddress(item.Substring(1)));
+            }
+
+            string address = item.Substring(1);
             return Convert.ToInt16(address);
+        }
+
+        private static Int16 ConvertLCmd(string item)
+        {
+           return Convert.ToInt16(SymbolTable.GetAddress(item.Substring(1)));
         }
 
         private static Int32 GetIntFromBitArray(BitArray bitArray)
@@ -420,6 +485,11 @@ namespace HackAssembler
             Symbols[symbol] = address;
         }
 
+        public static bool Contains(string symbol)
+        {
+            return Symbols.ContainsKey(symbol);
+        }
+
         public static int GetAddress(string symbol)
         {
             int address;
@@ -442,7 +512,8 @@ namespace HackAssembler
                 return (int)ExitCode.InvalidFilename;
             }
 
-            List<string> instructions = Parser.ParseFile(inputFile);
+            Parser.FirstPass(inputFile);
+            List<string> instructions = Parser.SecondPass(inputFile);
             List<byte[]> byteInstructions = Code.ConvertInstructionsToBinary(instructions);
 
             const string fileName = "../ComputerArchitecture/nand2tetris/projects/06/add/Add8.hack";
@@ -452,8 +523,7 @@ namespace HackAssembler
             {
                 foreach (var bytes in byteInstructions)
                 {
-                    string firstByte = Convert.ToString(bytes[0], 2).PadLeft(c
-                    8, '0');
+                    string firstByte = Convert.ToString(bytes[0], 2).PadLeft(8, '0');
                     string secondByte = Convert.ToString(bytes[1], 2).PadLeft(8, '0');
                     sw.Write(String.Format("{0}{1}{2}", secondByte, firstByte, Environment.NewLine));
                 }
