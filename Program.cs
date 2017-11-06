@@ -47,7 +47,8 @@ namespace HackAssembler
 
         private static string GetFileName(string inputFile)
         {
-            return string.Empty;
+            var originalFileName = inputFile.Substring(inputFile.LastIndexOf("/") + 1);
+            return originalFileName.Replace("asm", "hack");
         }
 
         private static void OutputBinaryFile(string fileName, List<byte[]> byteInstructions)

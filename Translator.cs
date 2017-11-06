@@ -8,7 +8,7 @@ namespace HackAssembler
     {
         public Translator(SymbolTable symbolTable)
         {
-            SymbolTable symbols = symbolTable;
+            Symbols = symbolTable;
         }
 
         public List<byte[]> ConvertInstructionsToBinary(List<string> instructions)
@@ -56,13 +56,13 @@ namespace HackAssembler
         {
             if (Parser.IsVariable(item))
             {
-                if (!symbols.Contains(item.Substring(1)))
+                if (!Symbols.Contains(item.Substring(1)))
                 {
-                    symbols.AddEntry(item.Substring(1), variableBaseAddress);
+                    Symbols.AddEntry(item.Substring(1), variableBaseAddress);
                     variableBaseAddress++;
                 }
 
-                return Convert.ToInt16(symbols.GetAddress(item.Substring(1)));
+                return Convert.ToInt16(Symbols.GetAddress(item.Substring(1)));
             }
 
             string address = item.Substring(1);
@@ -102,7 +102,7 @@ namespace HackAssembler
 
         private Int16 ConvertLCmd(string item)
         {
-            return Convert.ToInt16(symbols.GetAddress(item.Substring(1)));
+            return Convert.ToInt16(Symbols.GetAddress(item.Substring(1)));
         }
         
         private static bool[] ConvertCompCmd(string cmd)
@@ -168,7 +168,7 @@ namespace HackAssembler
 
         private int variableBaseAddress = 16;
 
-        private SymbolTable symbols { get; set; }
+        private SymbolTable Symbols { get; set; }
 
         private static Dictionary<string, bool[]> _compCmdMapping;
 

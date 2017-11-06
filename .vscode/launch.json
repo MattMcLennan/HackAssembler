@@ -1,9 +1,9 @@
 {
-   // Use IntelliSense to find out which attributes exist for C# debugging
-   // Use hover for the description of the existing attributes
-   // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-   "version": "0.2.0",
-   "configurations": [
+    // Use IntelliSense to find out which attributes exist for C# debugging
+    // Use hover for the description of the existing attributes
+    // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
+    "version": "0.2.0",
+    "configurations": [
         {
             "name": ".NET Core Launch (console)",
             "type": "coreclr",
@@ -11,7 +11,15 @@
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceRoot}/bin/Debug/netcoreapp2.0/HackAssembler.dll",
-            "args": ["../ComputerArchitecture/nand2tetris/projects/06/pong/Pong.asm"],
+            "args": [
+                "../ComputerArchitecture/nand2tetris/projects/06/add/Add.asm",
+                "../ComputerArchitecture/nand2tetris/projects/06/max/Max.asm",
+                "../ComputerArchitecture/nand2tetris/projects/06/max/MaxL.asm",
+                "../ComputerArchitecture/nand2tetris/projects/06/pong/Pong.asm",
+                "../ComputerArchitecture/nand2tetris/projects/06/pong/PongL.asm",
+                "../ComputerArchitecture/nand2tetris/projects/06/rect/Rect.asm",
+                "../ComputerArchitecture/nand2tetris/projects/06/rect/RectL.asm"
+            ],
             "cwd": "${workspaceRoot}",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",

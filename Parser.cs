@@ -8,7 +8,7 @@ namespace HackAssembler
     {
         public Parser(SymbolTable symbolTable)
         {
-            SymbolTable symbols = symbolTable;
+            Symbols = symbolTable;
         }
 
         public List<string> Parse(string inputFile)
@@ -19,7 +19,6 @@ namespace HackAssembler
 
         private void FirstPass(string inputFile)
         {
-            var symbols = new SymbolTable();
             int address = 0;
 
             foreach (var line in File.ReadLines(@inputFile))
@@ -31,7 +30,7 @@ namespace HackAssembler
 
                 if (IsSymbolDeclaration(line))
                 {
-                    symbols.AddEntry(GetSymbol(line), address);
+                    Symbols.AddEntry(GetSymbol(line), address);
                     continue;
                 }
 
@@ -174,6 +173,6 @@ namespace HackAssembler
             return string.Empty;
         }
 
-        
+        private SymbolTable Symbols { get; set; }
     }
 }
