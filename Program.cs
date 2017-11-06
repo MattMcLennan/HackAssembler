@@ -53,7 +53,8 @@ namespace HackAssembler
 
                 if (IsSymbolDeclaration(line))
                 {
-                    SymbolTable.AddEntry(GetSymbol(line), address + 1);
+                    SymbolTable.AddEntry(GetSymbol(line), address);
+                    continue;
                 }
 
                 address++;
@@ -92,15 +93,9 @@ namespace HackAssembler
             return currentPosition < line.Length;
         }
 
-        private static bool IsAllUpper(string input)
+        private static bool IsLabel(string input)
         {
-            for (int i = 0; i < input.Length; i++)
-            {
-                if (!Char.IsUpper(input[i]))
-                    return false;
-            }
-
-            return true;
+            return (Char.IsUpper(input[0]));
         }
 
         private static bool IsAllDigits(string input)
@@ -118,7 +113,7 @@ namespace HackAssembler
         {
             if (command.StartsWith("@"))
             {
-                if (IsAllUpper(command.Substring(1)))
+                if (IsLabel(command.Substring(1)))
                 {
                     return CommandType.L;
                 }
@@ -151,17 +146,12 @@ namespace HackAssembler
             int start = command.IndexOf("=") + 1;
             int end = command.IndexOf(";");
 
-            if (start > 1)
+            if (end > 0)
             {
-                if (end > 0)
-                {
-                    return command.Substring(start, end);
-                }
-
-                return command.Substring(start);
+                return command.Substring(start, end);
             }
 
-            return string.Empty;
+            return command.Substring(start);
         }
 
         public static string GetJumpCmd(string command)
@@ -180,7 +170,7 @@ namespace HackAssembler
         {
             if (command.StartsWith("@"))
             {
-                if (IsAllUpper(command.Substring(1)))
+                if (!IsAllDigits(command.Substring(1)))
                 {
                     return true;
                 }
@@ -205,7 +195,7 @@ namespace HackAssembler
             return value;
         }
 
-        private static int varBaseAddress;
+        private static int varBaseAddress = 16;
 
         private static Dictionary<string, bool[]> _destCmdMapping;
 
@@ -429,7 +419,7 @@ namespace HackAssembler
 
         private static Int16 ConvertLCmd(string item)
         {
-           return Convert.ToInt16(SymbolTable.GetAddress(item.Substring(1)));
+            return Convert.ToInt16(SymbolTable.GetAddress(item.Substring(1)));
         }
 
         private static Int32 GetIntFromBitArray(BitArray bitArray)
@@ -449,6 +439,7 @@ namespace HackAssembler
         public SymbolTable()
         {
             Symbols = new Dictionary<string, int>();
+            InitDefaultSymbols();
         }
 
         public static Dictionary<string, int> Symbols { get; set; }
@@ -460,7 +451,7 @@ namespace HackAssembler
             Symbols.Add("ARG", 2);
             Symbols.Add("THIS", 3);
             Symbols.Add("THAT", 4);
-            Symbols.Add("RO", 0);
+            Symbols.Add("R0", 0);
             Symbols.Add("R1", 1);
             Symbols.Add("R2", 2);
             Symbols.Add("R3", 3);
@@ -516,7 +507,7 @@ namespace HackAssembler
             List<string> instructions = Parser.SecondPass(inputFile);
             List<byte[]> byteInstructions = Code.ConvertInstructionsToBinary(instructions);
 
-            const string fileName = "../ComputerArchitecture/nand2tetris/projects/06/add/Add8.hack";
+            const string fileName = "../ComputerArchitecture/nand2tetris/projects/06/pong/Pong.hack";
             byte[] newLine = System.Text.ASCIIEncoding.ASCII.GetBytes(Environment.NewLine);
 
             using (StreamWriter sw = new StreamWriter(fileName))
