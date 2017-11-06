@@ -104,7 +104,7 @@ namespace HackAssembler
         {
             return Convert.ToInt16(Symbols.GetAddress(item.Substring(1)));
         }
-        
+
         private static bool[] ConvertCompCmd(string cmd)
         {
             string compCmd = Parser.GetCompCmd(cmd);
@@ -237,7 +237,7 @@ namespace HackAssembler
                 return _destCmdMapping;
             }
         }
-        
+
         private static Dictionary<string, bool[]> _jumpCmdMapping;
 
         private static Dictionary<string, bool[]> JumpCmdMapping
